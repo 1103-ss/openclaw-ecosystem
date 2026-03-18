@@ -31,6 +31,10 @@ const getTypeLabel = (type: string) => {
     <h1>🦾 OpenClaw 生态资讯</h1>
     <p class="hero-subtitle">一站式聚合 OpenClaw 框架、Skills、Plugins、CLI 工具和社区动态</p>
     
+    <a href="/stats" class="hero-cta">
+      📊 查看国产 Claw 平台实时数据 →
+    </a>
+    
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value">{stats.totalSkills}</div>
@@ -172,7 +176,26 @@ const getTypeLabel = (type: string) => {
   .hero-subtitle {
     color: var(--text-muted);
     font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
     margin-bottom: 2rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
+  }
+
+  .hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 211, 238, 0.4);
   }
 
   .stats-grid {
