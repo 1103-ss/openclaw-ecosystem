@@ -1,0 +1,309 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { latestNews } from '../data/ecosystem';
+
+const getTypeIcon = (type: string) => {
+  const icons: Record<string, string> = {
+    release: '🚀',
+    skill: '🔧',
+    plugin: '🔌',
+    article: '📝',
+    community: '👥'
+  };
+  return icons[type] || '📰';
+};
+
+const getTypeColor = (type: string) => {
+  const colors: Record<string, string> = {
+    release: '#22c55e',
+    skill: '#6366f1',
+    plugin: '#f59e0b',
+    article: '#ec4899',
+    community: '#14b8a6'
+  };
+  return colors[type] || '#64748b';
+};
+---
+
+<Layout title="社区">
+  <h1>👥 OpenClaw 社区</h1>
+  <p class="subtitle">加入社区，参与讨论，贡献代码</p>
+
+  <section class="join-section">
+    <h2>💬 加入讨论</h2>
+    <div class="community-links">
+      <a href="https://discord.com/invite/clawd" target="_blank" class="community-card discord">
+        <span class="platform-icon">💬</span>
+        <div class="platform-info">
+          <h3>Discord</h3>
+          <p>实时讨论、问答、分享</p>
+        </div>
+        <span class="member-count">3,200+ 成员</span>
+      </a>
+      <a href="https://github.com/openclaw/openclaw/discussions" target="_blank" class="community-card github">
+        <span class="platform-icon">🐙</span>
+        <div class="platform-info">
+          <h3>GitHub Discussions</h3>
+          <p>功能请求、深度讨论</p>
+        </div>
+        <span class="member-count">开发者社区</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="timeline-section">
+    <h2>📰 动态时间线</h2>
+    <div class="timeline">
+      {latestNews.map((item, index) => (
+        <div class="timeline-item">
+          <div class="timeline-marker" style={`--marker-color: ${getTypeColor(item.type)}`}>
+            <span class="marker-icon">{getTypeIcon(item.type)}</span>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <span class="timeline-date">{item.date}</span>
+              <span class="timeline-type" style={`--type-color: ${getTypeColor(item.type)}`}>
+                {item.type}
+              </span>
+            </div>
+            <h3 class="timeline-title">{item.title}</h3>
+            <p class="timeline-summary">{item.summary}</p>
+            <a href={item.url} target="_blank" class="timeline-link">
+              查看详情 →
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="contribute-section">
+    <h2>🤝 参与贡献</h2>
+    <div class="contribute-grid">
+      <div class="contribute-card">
+        <h3>📝 提交 Issue</h3>
+        <p>发现 Bug 或有新功能建议？在 GitHub 提交 Issue</p>
+        <a href="https://github.com/openclaw/openclaw/issues" target="_blank" class="contribute-link">
+          前往 Issues →
+        </a>
+      </div>
+      <div class="contribute-card">
+        <h3>🔧 提交 PR</h3>
+        <p>修复 Bug 或添加新功能，提交 Pull Request</p>
+        <a href="https://github.com/openclaw/openclaw/pulls" target="_blank" class="contribute-link">
+          前往 Pull Requests →
+        </a>
+      </div>
+      <div class="contribute-card">
+        <h3>📦 发布 Skill</h3>
+        <p>开发了有用的技能？发布到 ClawHub 分享给社区</p>
+        <a href="https://clawhub.com/publish" target="_blank" class="contribute-link">
+          发布 Skill →
+        </a>
+      </div>
+      <div class="contribute-card">
+        <h3>📖 完善文档</h3>
+        <p>帮助改进文档，让更多人更容易上手</p>
+        <a href="https://github.com/openclaw/openclaw/tree/main/docs" target="_blank" class="contribute-link">
+          查看文档仓库 →
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .subtitle {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .join-section {
+    margin-bottom: 3rem;
+  }
+
+  .community-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  .community-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .community-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+
+  .platform-icon {
+    font-size: 2rem;
+  }
+
+  .platform-info {
+    flex: 1;
+  }
+
+  .platform-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .platform-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .member-count {
+    background: var(--bg);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .timeline-section {
+    margin-bottom: 3rem;
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .timeline-marker {
+    position: absolute;
+    left: -2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--marker-color, var(--border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .marker-icon {
+    font-size: 1.2rem;
+  }
+
+  .timeline-content {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-left: 1.5rem;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .timeline-date {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .timeline-type {
+    background: color-mix(in srgb, var(--type-color) 20%, transparent);
+    color: var(--type-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .timeline-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-summary {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .timeline-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .timeline-link:hover {
+    text-decoration: underline;
+  }
+
+  .contribute-section h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  .contribute-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .contribute-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .contribute-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .contribute-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .contribute-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .contribute-link:hover {
+    text-decoration: underline;
+  }
+</style>

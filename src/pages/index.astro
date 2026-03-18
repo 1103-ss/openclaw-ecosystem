@@ -1,0 +1,460 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { latestNews, featuredSkills, tools, stats } from '../data/ecosystem';
+
+const getTypeIcon = (type: string) => {
+  const icons: Record<string, string> = {
+    release: '🚀',
+    skill: '🔧',
+    plugin: '🔌',
+    article: '📝',
+    community: '👥'
+  };
+  return icons[type] || '📰';
+};
+
+const getTypeLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    release: '发布',
+    skill: 'Skill',
+    plugin: 'Plugin',
+    article: '文章',
+    community: '社区'
+  };
+  return labels[type] || type;
+};
+---
+
+<Layout title="OpenClaw 生态资讯">
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>🦾 OpenClaw 生态资讯</h1>
+    <p class="hero-subtitle">一站式聚合 OpenClaw 框架、Skills、Plugins、CLI 工具和社区动态</p>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{stats.totalSkills}</div>
+        <div class="stat-label">Skills</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{stats.totalPlugins}</div>
+        <div class="stat-label">Plugins</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{stats.totalDownloads}</div>
+        <div class="stat-label">Downloads</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{stats.githubStars}</div>
+        <div class="stat-label">GitHub Stars</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{stats.discordMembers}</div>
+        <div class="stat-label">Discord 成员</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest News Section -->
+  <section class="section">
+    <div class="section-header">
+      <h2>📰 最新动态</h2>
+      <a href="/news" class="view-all">查看全部 →</a>
+    </div>
+    <div class="news-list">
+      {latestNews.map((item) => (
+        <a href={item.url} target="_blank" class="news-card">
+          <div class="news-meta">
+            <span class="news-type">
+              <span class="type-icon">{getTypeIcon(item.type)}</span>
+              {getTypeLabel(item.type)}
+            </span>
+            <span class="news-date">{item.date}</span>
+          </div>
+          <h3 class="news-title">{item.title}</h3>
+          <p class="news-summary">{item.summary}</p>
+          <div class="news-footer">
+            <span class="news-source">来源: {item.source}</span>
+            {item.tags && (
+              <div class="news-tags">
+                {item.tags.map(tag => <span class="tag">{tag}</span>)}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Featured Skills Section -->
+  <section class="section">
+    <div class="section-header">
+      <h2>🔥 热门 Skills</h2>
+      <a href="/skills" class="view-all">查看全部 →</a>
+    </div>
+    <div class="skills-grid">
+      {featuredSkills.filter(s => s.featured).map((skill) => (
+        <a href={skill.url} target="_blank" class="skill-card">
+          <div class="skill-header">
+            <h3 class="skill-name">{skill.name}</h3>
+            <span class="skill-stars">⭐ {skill.stars}</span>
+          </div>
+          <p class="skill-desc">{skill.description}</p>
+          <div class="skill-footer">
+            <span class="skill-category">{skill.category}</span>
+            <span class="skill-author">by {skill.author}</span>
+          </div>
+          <div class="skill-tags">
+            {skill.tags.slice(0, 3).map(tag => <span class="tag">{tag}</span>)}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Tools Section -->
+  <section class="section">
+    <div class="section-header">
+      <h2>🛠️ CLI & 工具</h2>
+      <a href="/tools" class="view-all">查看全部 →</a>
+    </div>
+    <div class="tools-grid">
+      {tools.map((tool) => (
+        <a href={tool.url} target="_blank" class="tool-card">
+          <div class="tool-header">
+            <h3 class="tool-name">{tool.name}</h3>
+            <span class="tool-lang">{tool.language}</span>
+          </div>
+          <p class="tool-desc">{tool.description}</p>
+          <div class="tool-footer">
+            <span class="tool-type">{tool.type.toUpperCase()}</span>
+            <span class="tool-stars">⭐ {tool.stars}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Quick Links Section -->
+  <section class="section quick-links">
+    <h2>🔗 快速入口</h2>
+    <div class="links-grid">
+      <a href="https://docs.openclaw.ai" target="_blank" class="link-card">
+        <span class="link-icon">📚</span>
+        <span class="link-title">官方文档</span>
+        <span class="link-desc">OpenClaw 使用指南</span>
+      </a>
+      <a href="https://clawhub.com" target="_blank" class="link-card">
+        <span class="link-icon">🛒</span>
+        <span class="link-title">ClawHub</span>
+        <span class="link-desc">Skills 市场</span>
+      </a>
+      <a href="https://github.com/openclaw/openclaw" target="_blank" class="link-card">
+        <span class="link-icon">🐙</span>
+        <span class="link-title">GitHub</span>
+        <span class="link-desc">源码与贡献</span>
+      </a>
+      <a href="https://discord.com/invite/clawd" target="_blank" class="link-card">
+        <span class="link-icon">💬</span>
+        <span class="link-title">Discord</span>
+        <span class="link-desc">加入社区</span>
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 3rem 0;
+  }
+
+  .hero-subtitle {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .section {
+    margin: 3rem 0;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .view-all {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .view-all:hover {
+    text-decoration: underline;
+  }
+
+  .news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .news-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .news-card:hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+  }
+
+  .news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .news-type {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(99, 102, 241, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    color: var(--primary);
+  }
+
+  .news-date {
+    color: var(--text-muted);
+  }
+
+  .news-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .news-summary {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .news-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .news-source {
+    color: var(--text-muted);
+  }
+
+  .news-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--accent);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  .skill-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .skill-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .skill-name {
+    font-size: 1.1rem;
+    color: var(--accent);
+  }
+
+  .skill-stars {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .skill-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .skill-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .skill-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .tool-card:hover {
+    border-color: var(--primary);
+  }
+
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .tool-name {
+    font-size: 1.1rem;
+  }
+
+  .tool-lang {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+
+  .tool-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tool-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .quick-links h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .link-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .link-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+  }
+
+  .link-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .link-title {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+
+  .link-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+</style>

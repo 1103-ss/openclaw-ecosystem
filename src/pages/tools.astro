@@ -1,0 +1,237 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { tools } from '../data/ecosystem';
+---
+
+<Layout title="CLI & 工具">
+  <h1>🛠️ CLI & 开发工具</h1>
+  <p class="subtitle">OpenClaw 生态核心工具和 SDK</p>
+
+  <div class="tools-list">
+    {tools.map((tool) => (
+      <div class="tool-card">
+        <div class="tool-main">
+          <div class="tool-icon">
+            {tool.type === 'cli' ? '⚡' : tool.type === 'sdk' ? '📦' : '🔗'}
+          </div>
+          <div class="tool-info">
+            <div class="tool-header">
+              <h3 class="tool-name">{tool.name}</h3>
+              <span class="tool-type-badge">{tool.type.toUpperCase()}</span>
+            </div>
+            <p class="tool-desc">{tool.description}</p>
+            <div class="tool-meta">
+              <span class="tool-lang">
+                <span class="lang-dot"></span>
+                {tool.language}
+              </span>
+              <span class="tool-stars">⭐ {tool.stars} Stars</span>
+              <span class="tool-repo">{tool.repo}</span>
+            </div>
+          </div>
+        </div>
+        <div class="tool-actions">
+          <a href={tool.url} target="_blank" class="btn-primary">
+            查看仓库
+          </a>
+          <a href={`https://github.com/${tool.repo}/blob/main/README.md`} target="_blank" class="btn-secondary">
+            文档
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <section class="install-section">
+    <h2>📥 快速安装</h2>
+    <div class="install-cards">
+      <div class="install-card">
+        <h3>OpenClaw CLI</h3>
+        <code class="install-cmd">npm install -g openclaw</code>
+        <p>核心命令行工具，启动 Agent 服务</p>
+      </div>
+      <div class="install-card">
+        <h3>ClawHub CLI</h3>
+        <code class="install-cmd">npm install -g clawhub</code>
+        <p>Skills 市场命令行工具</p>
+      </div>
+      <div class="install-card">
+        <h3>OpenClaw SDK</h3>
+        <code class="install-cmd">npm install openclaw-sdk</code>
+        <p>JavaScript/TypeScript 开发 SDK</p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .subtitle {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .tool-main {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .tool-icon {
+    font-size: 2.5rem;
+    background: var(--bg);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .tool-info {
+    flex: 1;
+  }
+
+  .tool-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-name {
+    font-size: 1.3rem;
+  }
+
+  .tool-type-badge {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+
+  .tool-desc {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .tool-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .tool-lang {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .lang-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+
+  .tool-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+  }
+
+  .btn-secondary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color 0.2s;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .install-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .install-section h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  .install-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .install-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .install-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .install-cmd {
+    display: block;
+    background: var(--bg-card);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .install-card p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+</style>
