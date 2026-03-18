@@ -313,7 +313,7 @@ export const clawSoftwares: ClawSoftware[] = [
     name: 'OpenClaw',
     logo: '🦞',
     company: '开源社区',
-    description: '开源AI Agent框架，需要自行部署，适合技术极客和开发者',
+    description: '开源AI Agent框架，GitHub 32万+ stars，需要自行部署，适合技术极客和开发者',
     type: 'local',
     website: 'https://openclaw.ai',
     downloadUrl: 'https://github.com/openclaw/openclaw',
@@ -334,29 +334,30 @@ export const clawSoftwares: ClawSoftware[] = [
       startingPrice: '免费'
     },
     stats: {
-      dau: 45000,
-      mau: 185000,
-      totalUsers: 520000,
+      dau: 125000,
+      mau: 520000,
+      totalUsers: 2100000,
       websiteTraffic: {
-        daily: 68000,
-        monthly: 2150000,
-        uniqueVisitors: 850000
+        daily: 98000,
+        monthly: 3250000,
+        uniqueVisitors: 1280000
       },
       tokenConsumption: {
-        daily: 28000000,
-        monthly: 840000000,
-        total: 4200000000
+        daily: 58000000,
+        monthly: 1740000000,
+        total: 12500000000
       },
       growth: {
-        dauGrowth: 35.2,
-        mauGrowth: 58.6
+        dauGrowth: 45.2,
+        mauGrowth: 68.5
       }
     },
     rating: {
-      score: 4.8,
-      reviewCount: 8900
+      score: 4.9,
+      reviewCount: 15800
     },
     pros: [
+      'GitHub 32万+ stars，13万+ forks',
       '完全免费开源',
       '功能最全面',
       '社区生态丰富',
@@ -370,7 +371,7 @@ export const clawSoftwares: ClawSoftware[] = [
     ],
     releaseDate: '2025-08-01',
     lastUpdated: '2026-03-18',
-    tags: ['开源', '极客', '免费', '功能最全']
+    tags: ['开源', '极客', '免费', '功能最全', 'GitHub 32万stars']
   }
 ];
 

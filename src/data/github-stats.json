@@ -1,0 +1,23 @@
+{
+  "openclaw": {
+    "stars": 321781,
+    "forks": 61871,
+    "openIssues": 342,
+    "lastCommit": "2026-03-18T09:45:00Z",
+    "updatedAt": "2026-03-18T10:03:37.115Z"
+  },
+  "dify": {
+    "stars": 133341,
+    "forks": 20765,
+    "openIssues": 892,
+    "lastCommit": "2026-03-18T08:30:00Z",
+    "updatedAt": "2026-03-18T10:03:37.115Z"
+  },
+  "fastgpt": {
+    "stars": 27415,
+    "forks": 6972,
+    "openIssues": 256,
+    "lastCommit": "2026-03-17T22:15:00Z",
+    "updatedAt": "2026-03-18T10:03:37.115Z"
+  }
+}
