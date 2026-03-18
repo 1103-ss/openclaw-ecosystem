@@ -1,0 +1,541 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { allRankings, formatNumber, getRankChangeIcon, getRankChangeColor } from '../data/rankings';
+
+const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
+---
+
+<Layout title="榜单">
+  <div class="page-header">
+    <h1>🏆 综合榜单</h1>
+    <p class="subtitle">多维度评估，发现最优秀的 Claw 平台、Skills 和开源项目</p>
+  </div>
+
+  <!-- 榜单切换标签 -->
+  <div class="ranking-tabs">
+    {allRankings.map((ranking, index) => (
+      <button class={`tab-btn ${index === 0 ? 'active' : ''}`} data-ranking={ranking.id}>
+        <span class="tab-icon">{ranking.icon}</span>
+        <span class="tab-text">{ranking.name}</span>
+      </button>
+    ))}
+  </div>
+
+  <!-- 当前榜单信息 -->
+  <div class="ranking-info">
+    <div class="info-main">
+      <h2>{currentRanking.icon} {currentRanking.name}</h2>
+      <p class="info-desc">{currentRanking.description}</p>
+    </div>
+    <span class="update-badge">⏱️ {currentRanking.updateFrequency}</span>
+  </div>
+
+  <!-- 因子权重说明 -->
+  <section class="factors-section">
+    <h3>📊 评分因子与权重</h3>
+    <div class="factors-grid">
+      {currentRanking.factors.map((factor) => (
+        <div class="factor-card">
+          <div class="factor-header">
+            <span class="factor-name">{factor.name}</span>
+            <span class="factor-weight">{factor.weight}%</span>
+          </div>
+          <p class="factor-desc">{factor.description}</p>
+          <div class="factor-meta">
+            <span class="factor-unit">单位: {factor.unit || '无'}</span>
+            <span class="factor-direction">{factor.higherIsBetter ? '↑ 越高越好' : '↓ 越低越好'}</span>
+          </div>
+          <div class="factor-bar">
+            <div class="factor-progress" style={`width: ${factor.weight}%`}></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 榜单表格 -->
+  <section class="ranking-table-section">
+    <div class="table-header-row">
+      <h3>📈 排行榜</h3>
+      <div class="table-actions">
+        <button class="action-btn active">综合得分</button>
+        <button class="action-btn">按热度</button>
+        <button class="action-btn">按增长</button>
+      </div>
+    </div>
+    
+    <div class="ranking-table">
+      <div class="table-header">
+        <span class="col-rank">排名</span>
+        <span class="col-platform">平台/项目</span>
+        <span class="col-score">综合得分</span>
+        {currentRanking.factors.slice(0, 3).map(factor => (
+          <span class="col-factor">{factor.name}</span>
+        ))}
+        <span class="col-change">趋势</span>
+      </div>
+      
+      {currentRanking.items.map((item) => (
+        <div class="table-row">
+          <span class="col-rank">
+            {item.rank <= 3 ? (
+              <span class={`rank-badge rank-${item.rank}`}>{item.rank}</span>
+            ) : (
+              item.rank
+            )}
+          </span>
+          
+          <span class="col-platform">
+            <a href={item.url} target="_blank" class="platform-link">
+              <span class="platform-logo">{item.logo}</span>
+              <span class="platform-info">
+                <span class="platform-name">{item.name}</span>
+                <span class="platform-desc">{item.description}</span>
+                <div class="platform-tags">
+                  {item.tags.map(tag => <span class="tag">{tag}</span>)}
+                </div>
+              </span>
+            </a>
+          </span>
+          
+          <span class="col-score">
+            <span class="score-value">{item.score.toFixed(1)}</span>
+            <div class="score-bar">
+              <div class="score-progress" style={`width: ${item.score}%`}></div>
+            </div>
+          </span>
+          
+          {currentRanking.factors.slice(0, 3).map(factor => (
+            <span class="col-factor">
+              {formatNumber(item.factors[factor.id], factor.unit)}
+            </span>
+          ))}
+          
+          <span class="col-change">
+            {item.change && (
+              <div class="change-info">
+                <span class="change-rank" style={`color: ${getRankChangeColor(item.change.rank)}`}>
+                  {getRankChangeIcon(item.change.rank)} {Math.abs(item.change.rank)}
+                </span>
+                <span class="change-score" style={`color: ${item.change.score >= 0 ? '#22c55e' : '#ef4444'}`}>
+                  {item.change.score >= 0 ? '+' : ''}{item.change.score.toFixed(1)}%
+                </span>
+              </div>
+            )}
+          </span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 榜单说明 -->
+  <section class="info-section">
+    <h3>ℹ️ 榜单说明</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>🎯 评分算法</h4>
+        <p>综合得分采用加权平均算法，各因子根据权重计算后累加。得分范围 0-100，分数越高排名越靠前。</p>
+      </div>
+      <div class="info-card">
+        <h4>🔄 更新机制</h4>
+        <p>数据每日/每周自动更新，排名变化反映最新趋势。历史数据保留用于趋势分析。</p>
+      </div>
+      <div class="info-card">
+        <h4>📋 收录标准</h4>
+        <ul>
+          <li>Claw 平台：国产 AI Agent 平台</li>
+          <li>Skills：ClawHub 上架技能</li>
+          <li>Git 生态：GitHub 开源项目</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>📮 投稿/纠错</h4>
+        <p>发现数据错误或有项目想上榜？请在 GitHub 提交 Issue 或联系管理员。</p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+
+  .ranking-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem;
+  }
+
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+  }
+
+  .tab-btn:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .tab-btn.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .tab-icon {
+    font-size: 1.2rem;
+  }
+
+  .ranking-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .info-main h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .info-desc {
+    color: var(--text-muted);
+  }
+
+  .update-badge {
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+
+  .factors-section {
+    margin-bottom: 3rem;
+  }
+
+  .factors-section h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .factors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .factor-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .factor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .factor-name {
+    font-weight: 600;
+  }
+
+  .factor-weight {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+
+  .factor-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .factor-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .factor-bar {
+    height: 6px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .factor-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 3px;
+  }
+
+  .ranking-table-section {
+    margin-bottom: 3rem;
+  }
+
+  .table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .table-header-row h3 {
+    font-size: 1.2rem;
+  }
+
+  .table-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+
+  .action-btn:hover, .action-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  .ranking-table {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 80px 2fr 100px repeat(3, 120px) 100px;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--bg);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .table-row {
+    display: grid;
+    grid-template-columns: 80px 2fr 100px repeat(3, 120px) 100px;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .table-row:hover {
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  .col-rank {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .rank-badge {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffb700);
+    color: #000;
+  }
+
+  .rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+    color: #000;
+  }
+
+  .rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #b87333);
+    color: #fff;
+  }
+
+  .platform-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .platform-logo {
+    font-size: 2rem;
+  }
+
+  .platform-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .platform-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .platform-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  .platform-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .tag {
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+  }
+
+  .col-score {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .score-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--primary);
+  }
+
+  .score-bar {
+    height: 4px;
+    background: var(--bg);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 2px;
+  }
+
+  .col-factor {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .change-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .change-rank {
+    font-weight: 600;
+  }
+
+  .change-score {
+    font-size: 0.8rem;
+  }
+
+  .info-section {
+    margin-bottom: 2rem;
+  }
+
+  .info-section h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .info-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent);
+  }
+
+  .info-card p, .info-card ul {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .info-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .info-card li {
+    padding: 0.25rem 0;
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  .info-card li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+</style>
