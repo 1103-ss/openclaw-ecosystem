@@ -5,6 +5,7 @@ import { clawSoftwares, totalStats, formatNumber, formatGrowth, getPlatformIcon,
 const sortedByDAU = [...clawSoftwares].sort((a, b) => b.stats.dau - a.stats.dau);
 const sortedByToken = [...clawSoftwares].sort((a, b) => b.stats.tokenConsumption.daily - a.stats.tokenConsumption.daily);
 const sortedByRating = [...clawSoftwares].sort((a, b) => b.rating.score - a.rating.score);
+const sortedByWebsiteTraffic = [...clawSoftwares].sort((a, b) => b.stats.websiteTraffic.daily - a.stats.websiteTraffic.daily);
 
 const getGrowthColor = (growth: number): string => {
   if (growth >= 20) return '#22c55e';
@@ -54,11 +55,21 @@ const getGrowthColor = (growth: number): string => {
         </div>
       </div>
       <div class="stat-card">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-info">
+          <div class="stat-value">{formatNumber(totalStats.totalWebsiteDaily)}</div>
+          <div class="stat-label">今日网站访问量</div>
+          <div class="stat-growth" style="color: var(--accent);">
+            {formatNumber(totalStats.totalWebsiteMonthly)}/月
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
         <div class="stat-icon">⭐</div>
         <div class="stat-info">
           <div class="stat-value">{totalStats.avgRating.toFixed(1)}</div>
           <div class="stat-label">平均评分</div>
-          <div class="stat-growth" style="color: var(--accent);">
+          <div class="stat-growth" style="color: var(--text-muted);">
             {formatNumber(totalStats.totalReviewCount)} 条评价
           </div>
         </div>
@@ -84,6 +95,7 @@ const getGrowthColor = (growth: number): string => {
         <span class="col-company">厂商</span>
         <span class="col-dau">DAU</span>
         <span class="col-mau">MAU</span>
+        <span class="col-website">日访问量</span>
         <span class="col-token">日Token</span>
         <span class="col-rating">评分</span>
         <span class="col-growth">增长率</span>
@@ -115,6 +127,9 @@ const getGrowthColor = (growth: number): string => {
           <span class="col-company">{software.company}</span>
           <span class="col-dau">{formatNumber(software.stats.dau)}</span>
           <span class="col-mau">{formatNumber(software.stats.mau)}</span>
+          <span class="col-website" title={`月访问量: ${formatNumber(software.stats.websiteTraffic.monthly)}`}>
+            {formatNumber(software.stats.websiteTraffic.daily)}
+          </span>
           <span class="col-token">{formatNumber(software.stats.tokenConsumption.daily)}</span>
           <span class="col-rating">
             <span class="rating-stars">{'⭐'.repeat(Math.floor(software.rating.score))}</span>
@@ -351,19 +366,19 @@ const getGrowthColor = (growth: number): string => {
 
   .table-header {
     display: grid;
-    grid-template-columns: 60px 2fr 120px 100px 100px 100px 100px 80px;
-    gap: 1rem;
+    grid-template-columns: 60px 2fr 120px 90px 90px 90px 90px 80px 70px;
+    gap: 0.75rem;
     padding: 1rem 1.5rem;
     background: var(--bg);
     font-weight: 600;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .table-row {
     display: grid;
-    grid-template-columns: 60px 2fr 120px 100px 100px 100px 100px 80px;
-    gap: 1rem;
+    grid-template-columns: 60px 2fr 120px 90px 90px 90px 90px 80px 70px;
+    gap: 0.75rem;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border);
     align-items: center;
@@ -450,6 +465,13 @@ const getGrowthColor = (growth: number): string => {
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 500;
+  }
+
+  .col-website {
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: help;
   }
 
   .platforms-section {

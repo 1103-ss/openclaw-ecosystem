@@ -26,6 +26,11 @@ export interface ClawSoftware {
     dau: number;           // 日活跃用户
     mau: number;           // 月活跃用户
     totalUsers: number;    // 总用户数
+    websiteTraffic: {      // 网站浏览量
+      daily: number;       // 日访问量(PV)
+      monthly: number;     // 月访问量(PV)
+      uniqueVisitors: number; // 月独立访客(UV)
+    };
     tokenConsumption: {    // Token 消耗（估算）
       daily: number;
       monthly: number;
@@ -81,6 +86,11 @@ export const clawSoftwares: ClawSoftware[] = [
       dau: 125000,
       mau: 580000,
       totalUsers: 2100000,
+      websiteTraffic: {
+        daily: 85000,
+        monthly: 2650000,
+        uniqueVisitors: 980000
+      },
       tokenConsumption: {
         daily: 85000000,
         monthly: 2580000000,
@@ -139,6 +149,11 @@ export const clawSoftwares: ClawSoftware[] = [
       dau: 89000,
       mau: 420000,
       totalUsers: 1580000,
+      websiteTraffic: {
+        daily: 42000,
+        monthly: 1380000,
+        uniqueVisitors: 520000
+      },
       tokenConsumption: {
         daily: 62000000,
         monthly: 1860000000,
@@ -196,6 +211,11 @@ export const clawSoftwares: ClawSoftware[] = [
       dau: 156000,
       mau: 720000,
       totalUsers: 2800000,
+      websiteTraffic: {
+        daily: 125000,
+        monthly: 3850000,
+        uniqueVisitors: 1420000
+      },
       tokenConsumption: {
         daily: 98000000,
         monthly: 2940000000,
@@ -254,6 +274,11 @@ export const clawSoftwares: ClawSoftware[] = [
       dau: 68000,
       mau: 320000,
       totalUsers: 980000,
+      websiteTraffic: {
+        daily: 28000,
+        monthly: 920000,
+        uniqueVisitors: 380000
+      },
       tokenConsumption: {
         daily: 42000000,
         monthly: 1260000000,
@@ -312,6 +337,11 @@ export const clawSoftwares: ClawSoftware[] = [
       dau: 45000,
       mau: 185000,
       totalUsers: 520000,
+      websiteTraffic: {
+        daily: 68000,
+        monthly: 2150000,
+        uniqueVisitors: 850000
+      },
       tokenConsumption: {
         daily: 28000000,
         monthly: 840000000,
@@ -349,6 +379,8 @@ export const totalStats = {
   totalDAU: clawSoftwares.reduce((sum, s) => sum + s.stats.dau, 0),
   totalMAU: clawSoftwares.reduce((sum, s) => sum + s.stats.mau, 0),
   totalUsers: clawSoftwares.reduce((sum, s) => sum + s.stats.totalUsers, 0),
+  totalWebsiteDaily: clawSoftwares.reduce((sum, s) => sum + s.stats.websiteTraffic.daily, 0),
+  totalWebsiteMonthly: clawSoftwares.reduce((sum, s) => sum + s.stats.websiteTraffic.monthly, 0),
   totalTokenDaily: clawSoftwares.reduce((sum, s) => sum + s.stats.tokenConsumption.daily, 0),
   totalTokenMonthly: clawSoftwares.reduce((sum, s) => sum + s.stats.tokenConsumption.monthly, 0),
   avgRating: clawSoftwares.reduce((sum, s) => sum + s.rating.score, 0) / clawSoftwares.length,
@@ -361,6 +393,7 @@ export const sortedByMAU = [...clawSoftwares].sort((a, b) => b.stats.mau - a.sta
 export const sortedByRating = [...clawSoftwares].sort((a, b) => b.rating.score - a.rating.score);
 export const sortedByGrowth = [...clawSoftwares].sort((a, b) => b.stats.growth.dauGrowth - a.stats.growth.dauGrowth);
 export const sortedByToken = [...clawSoftwares].sort((a, b) => b.stats.tokenConsumption.daily - a.stats.tokenConsumption.daily);
+export const sortedByWebsiteTraffic = [...clawSoftwares].sort((a, b) => b.stats.websiteTraffic.daily - a.stats.websiteTraffic.daily);
 
 // 格式化数字
 export function formatNumber(num: number): string {
