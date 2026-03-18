@@ -1,13 +1,15 @@
 // 榜单系统数据
 // 支持多维度因子评分和权重配置
 
+import { clawSoftwares, formatNumber, formatGrowth } from './clawSoftwares';
+
 export interface RankingFactor {
   id: string;
   name: string;
   description: string;
-  weight: number; // 权重 0-100
+  weight: number;
   unit?: string;
-  higherIsBetter: boolean; // true=越高越好，false=越低越好
+  higherIsBetter: boolean;
 }
 
 export interface RankedItem {
@@ -18,17 +20,28 @@ export interface RankedItem {
   description: string;
   url: string;
   github?: string;
+  company: string;
+  type: string;
+  platforms: string[];
+  features: string[];
+  pricing: {
+    model: string;
+    freeTier: boolean;
+    startingPrice?: string;
+  };
   // 各因子原始值
   factors: Record<string, number>;
   // 综合得分 (0-100)
   score: number;
   // 环比变化
   change?: {
-    rank: number; // 排名变化（正=上升，负=下降）
-    score: number; // 得分变化百分比
+    rank: number;
+    score: number;
   };
   tags: string[];
   lastUpdated: string;
+  // 完整数据引用
+  fullData?: any;
 }
 
 export interface RankingCategory {
@@ -41,18 +54,18 @@ export interface RankingCategory {
   updateFrequency: string;
 }
 
-// ==================== 1. Claw 平台榜单 ====================
-export const clawPlatformRanking: RankingCategory = {
-  id: 'claw-platforms',
-  name: 'Claw 平台榜',
-  icon: '🦾',
-  description: '综合评估各 AI Agent 平台的活跃度、规模和发展潜力',
+// ==================== Claw 软件榜单 ====================
+export const clawSoftwareRanking: RankingCategory = {
+  id: 'claw-softwares',
+  name: 'Claw软件榜',
+  icon: '🦞',
+  description: '综合评估市面上主流Claw软件的用户规模、活跃度和市场影响力',
   updateFrequency: '每日更新',
   factors: [
     {
       id: 'dau',
       name: '日活跃用户',
-      description: 'Daily Active Users，反映平台当前热度',
+      description: 'Daily Active Users，反映软件当前热度',
       weight: 25,
       unit: '人',
       higherIsBetter: true
@@ -60,152 +73,122 @@ export const clawPlatformRanking: RankingCategory = {
     {
       id: 'mau',
       name: '月活跃用户',
-      description: 'Monthly Active Users，反映平台规模',
+      description: 'Monthly Active Users，反映软件规模',
       weight: 20,
       unit: '人',
+      higherIsBetter: true
+    },
+    {
+      id: 'websiteTraffic',
+      name: '官网访问量',
+      description: '官网日访问量(PV)，反映品牌关注度',
+      weight: 15,
+      unit: 'PV',
       higherIsBetter: true
     },
     {
       id: 'growth',
       name: '增长率',
       description: 'DAU 月环比增长率',
-      weight: 20,
+      weight: 15,
       unit: '%',
       higherIsBetter: true
     },
     {
       id: 'tokenConsumption',
-      name: 'Token 消耗',
-      description: '月 Token 消耗量，反映实际使用量',
-      weight: 15,
+      name: 'Token消耗',
+      description: '月Token消耗量，反映实际使用量',
+      weight: 10,
       unit: 'tokens',
       higherIsBetter: true
     },
     {
-      id: 'githubStars',
-      name: 'GitHub Stars',
-      description: '开源项目的社区关注度',
+      id: 'rating',
+      name: '用户评分',
+      description: '用户满意度评分',
       weight: 10,
-      unit: 'stars',
+      unit: '分',
       higherIsBetter: true
     },
     {
       id: 'ecosystemScore',
-      name: '生态完善度',
-      description: '插件数量、文档完善度、社区活跃度等综合评分',
-      weight: 10,
+      name: '功能完善度',
+      description: '功能丰富度、平台支持、生态完善度',
+      weight: 5,
       unit: '分',
       higherIsBetter: true
     }
   ],
-  items: [
-    {
-      id: 'coze',
-      rank: 1,
-      name: 'Coze (扣子)',
-      logo: '🔷',
-      description: '字节跳动推出的 AI Bot 开发平台，用户规模最大',
-      url: 'https://www.coze.cn',
-      factors: {
-        dau: 45600,
-        mau: 189000,
-        growth: 22.5,
-        tokenConsumption: 368000000,
-        githubStars: 0,
-        ecosystemScore: 85
-      },
-      score: 94.2,
-      change: { rank: 0, score: 2.1 },
-      tags: ['大厂出品', '低代码', '生态完善'],
-      lastUpdated: '2026-03-18'
+  items: clawSoftwares.map((software, index) => ({
+    id: software.id,
+    rank: index + 1,
+    name: software.name,
+    logo: software.logo,
+    description: software.description,
+    url: software.website,
+    github: software.downloadUrl?.includes('github') ? software.downloadUrl : undefined,
+    company: software.company,
+    type: software.type,
+    platforms: software.platforms,
+    features: software.features,
+    pricing: software.pricing,
+    factors: {
+      dau: software.stats.dau,
+      mau: software.stats.mau,
+      websiteTraffic: software.stats.websiteTraffic.daily,
+      growth: software.stats.growth.dauGrowth,
+      tokenConsumption: software.stats.tokenConsumption.monthly,
+      rating: software.rating.score * 20, // 5分制转百分制
+      ecosystemScore: software.features.length * 10
     },
-    {
-      id: 'dify',
-      rank: 2,
-      name: 'Dify',
-      logo: '🤖',
-      description: '开源 LLM 应用开发平台，开发者首选',
-      url: 'https://dify.ai',
-      github: 'https://github.com/langgenius/dify',
-      factors: {
-        dau: 28900,
-        mau: 124000,
-        growth: 18.2,
-        tokenConsumption: 245000000,
-        githubStars: 85600,
-        ecosystemScore: 92
-      },
-      score: 91.8,
-      change: { rank: 1, score: 3.5 },
-      tags: ['开源', '企业级', '工作流'],
-      lastUpdated: '2026-03-18'
-    },
-    {
-      id: 'wenxin',
-      rank: 3,
-      name: '文心智能体',
-      logo: '🌐',
-      description: '百度文心大模型智能体平台',
-      url: 'https://agents.baidu.com',
-      factors: {
-        dau: 32100,
-        mau: 156000,
-        growth: 14.2,
-        tokenConsumption: 285000000,
-        githubStars: 0,
-        ecosystemScore: 78
-      },
-      score: 87.5,
-      change: { rank: -1, score: 1.2 },
-      tags: ['百度', '大模型', '智能体'],
-      lastUpdated: '2026-03-18'
-    },
-    {
-      id: 'fastgpt',
-      rank: 4,
-      name: 'FastGPT',
-      logo: '⚡',
-      description: '知识库问答系统，快速搭建 AI 客服',
-      url: 'https://fastgpt.in',
-      github: 'https://github.com/labring/FastGPT',
-      factors: {
-        dau: 18600,
-        mau: 78000,
-        growth: 15.8,
-        tokenConsumption: 158000000,
-        githubStars: 42500,
-        ecosystemScore: 80
-      },
-      score: 82.3,
-      change: { rank: 0, score: 2.8 },
-      tags: ['知识库', '客服', '开源'],
-      lastUpdated: '2026-03-18'
-    },
-    {
-      id: 'openclaw',
-      rank: 5,
-      name: 'OpenClaw',
-      logo: '🦾',
-      description: '开源 AI Agent 编排框架，多模型多渠道支持',
-      url: 'https://openclaw.ai',
-      github: 'https://github.com/openclaw/openclaw',
-      factors: {
-        dau: 12580,
-        mau: 45600,
-        growth: 12.5,
-        tokenConsumption: 85000000,
-        githubStars: 2500,
-        ecosystemScore: 88
-      },
-      score: 76.8,
-      change: { rank: 2, score: 4.2 },
-      tags: ['开源框架', '多模型', '生态'],
-      lastUpdated: '2026-03-18'
-    }
-  ]
+    score: calculateScore(software),
+    change: software.stats.growth.dauGrowth > 20 ? { rank: 1, score: 3.5 } : 
+            software.stats.growth.dauGrowth > 10 ? { rank: 0, score: 1.2 } : 
+            { rank: -1, score: -0.5 },
+    tags: software.tags,
+    lastUpdated: software.lastUpdated,
+    fullData: software
+  })).sort((a, b) => b.score - a.score).map((item, index) => ({ ...item, rank: index + 1 }))
 };
 
-// ==================== 2. Skill 榜单 ====================
+// 计算综合得分
+function calculateScore(software: any): number {
+  const weights = {
+    dau: 0.25,
+    mau: 0.20,
+    websiteTraffic: 0.15,
+    growth: 0.15,
+    tokenConsumption: 0.10,
+    rating: 0.10,
+    ecosystemScore: 0.05
+  };
+  
+  // 归一化计算（简化版）
+  const maxDAU = 200000;
+  const maxMAU = 800000;
+  const maxTraffic = 150000;
+  const maxToken = 3000000000;
+  
+  const dauScore = (software.stats.dau / maxDAU) * 100;
+  const mauScore = (software.stats.mau / maxMAU) * 100;
+  const trafficScore = (software.stats.websiteTraffic.daily / maxTraffic) * 100;
+  const growthScore = Math.min(software.stats.growth.dauGrowth * 2, 100); // 增长率50%封顶
+  const tokenScore = (software.stats.tokenConsumption.monthly / maxToken) * 100;
+  const ratingScore = software.rating.score * 20;
+  const ecoScore = Math.min(software.features.length * 10, 100);
+  
+  return Math.round(
+    dauScore * weights.dau +
+    mauScore * weights.mau +
+    trafficScore * weights.websiteTraffic +
+    growthScore * weights.growth +
+    tokenScore * weights.tokenConsumption +
+    ratingScore * weights.rating +
+    ecoScore * weights.ecosystemScore
+  );
+}
+
+// ==================== Skill 榜单 ====================
 export const skillRanking: RankingCategory = {
   id: 'skills',
   name: 'Skill 热度榜',
@@ -263,10 +246,15 @@ export const skillRanking: RankingCategory = {
       description: '创建、编辑、审计 Agent Skills 的开发工具',
       url: 'https://clawhub.com/skills/skill-creator',
       github: 'https://github.com/openclaw/skill-creator',
+      company: 'OpenClaw Team',
+      type: 'development',
+      platforms: ['windows', 'mac', 'linux'],
+      features: ['创建Skill', '编辑Skill', '审计Skill'],
+      pricing: { model: 'free', freeTier: true },
       factors: {
         downloads: 25600,
         weeklyDownloads: 1200,
-        rating: 4.8,
+        rating: 96,
         usageFrequency: 3500,
         githubStars: 156
       },
@@ -282,10 +270,15 @@ export const skillRanking: RankingCategory = {
       logo: '📱',
       description: '小红书内容工具，搜索帖子、获取详情、评论互动',
       url: 'https://clawhub.com/skills/xiaohongshu',
+      company: 'Community',
+      type: 'social',
+      platforms: ['web'],
+      features: ['搜索帖子', '获取详情', '评论互动'],
+      pricing: { model: 'free', freeTier: true },
       factors: {
         downloads: 21800,
         weeklyDownloads: 1800,
-        rating: 4.6,
+        rating: 92,
         usageFrequency: 5200,
         githubStars: 89
       },
@@ -302,10 +295,15 @@ export const skillRanking: RankingCategory = {
       description: 'Tavily 搜索引擎集成，高质量网页搜索和内容提取',
       url: 'https://clawhub.com/skills/tavily-tool',
       github: 'https://github.com/openclaw/tavily-tool',
+      company: 'OpenClaw Team',
+      type: 'search',
+      platforms: ['web'],
+      features: ['网页搜索', '内容提取'],
+      pricing: { model: 'free', freeTier: true },
       factors: {
         downloads: 19500,
         weeklyDownloads: 950,
-        rating: 4.7,
+        rating: 94,
         usageFrequency: 4200,
         githubStars: 128
       },
@@ -321,10 +319,15 @@ export const skillRanking: RankingCategory = {
       logo: '🏥',
       description: '主机安全加固和健康检查工具',
       url: 'https://clawhub.com/skills/healthcheck',
+      company: 'OpenClaw Team',
+      type: 'security',
+      platforms: ['linux'],
+      features: ['安全加固', '健康检查'],
+      pricing: { model: 'free', freeTier: true },
       factors: {
         downloads: 16800,
         weeklyDownloads: 680,
-        rating: 4.5,
+        rating: 90,
         usageFrequency: 1200,
         githubStars: 88
       },
@@ -340,10 +343,15 @@ export const skillRanking: RankingCategory = {
       logo: '📧',
       description: '邮件收发技能，支持 IMAP/SMTP 协议',
       url: 'https://clawhub.com/skills/imap-smtp-email',
+      company: 'OpenClaw Team',
+      type: 'communication',
+      platforms: ['web'],
+      features: ['邮件收发', '附件处理'],
+      pricing: { model: 'free', freeTier: true },
       factors: {
         downloads: 15200,
         weeklyDownloads: 520,
-        rating: 4.4,
+        rating: 88,
         usageFrequency: 2100,
         githubStars: 95
       },
@@ -351,30 +359,11 @@ export const skillRanking: RankingCategory = {
       change: { rank: -2, score: -1.2 },
       tags: ['邮件', '通讯', '办公'],
       lastUpdated: '2026-03-18'
-    },
-    {
-      id: 'weather',
-      rank: 6,
-      name: 'weather',
-      logo: '🌤️',
-      description: '天气查询技能，支持 wttr.in 和 Open-Meteo',
-      url: 'https://clawhub.com/skills/weather',
-      factors: {
-        downloads: 14200,
-        weeklyDownloads: 380,
-        rating: 4.3,
-        usageFrequency: 2800,
-        githubStars: 72
-      },
-      score: 82.1,
-      change: { rank: 0, score: 0.8 },
-      tags: ['天气', '生活', '实用'],
-      lastUpdated: '2026-03-18'
     }
   ]
 };
 
-// ==================== 3. Git 生态榜单 ====================
+// ==================== Git 生态榜单 ====================
 export const gitEcosystemRanking: RankingCategory = {
   id: 'git-ecosystem',
   name: 'Git 生态榜',
@@ -399,14 +388,6 @@ export const gitEcosystemRanking: RankingCategory = {
       higherIsBetter: true
     },
     {
-      id: 'openIssues',
-      name: 'Open Issues',
-      description: '活跃的 Issue 数量（反映社区活跃度）',
-      weight: 10,
-      unit: 'issues',
-      higherIsBetter: true
-    },
-    {
       id: 'contributors',
       name: 'Contributors',
       description: '贡献者数量',
@@ -415,12 +396,20 @@ export const gitEcosystemRanking: RankingCategory = {
       higherIsBetter: true
     },
     {
+      id: 'openIssues',
+      name: 'Open Issues',
+      description: '活跃的 Issue 数量（反映社区活跃度）',
+      weight: 10,
+      unit: 'issues',
+      higherIsBetter: true
+    },
+    {
       id: 'lastCommit',
       name: '最近提交',
       description: '距离上次提交的天数',
       weight: 10,
       unit: '天',
-      higherIsBetter: false // 越小越好
+      higherIsBetter: false
     },
     {
       id: 'releases',
@@ -448,12 +437,17 @@ export const gitEcosystemRanking: RankingCategory = {
       description: 'LLM 应用开发平台，GitHub 最热门的 AI Agent 项目',
       url: 'https://dify.ai',
       github: 'https://github.com/langgenius/dify',
+      company: 'LangGenius',
+      type: 'platform',
+      platforms: ['web'],
+      features: ['应用开发', '工作流', '模型管理'],
+      pricing: { model: 'freemium', freeTier: true },
       factors: {
         stars: 85600,
         forks: 12800,
-        openIssues: 580,
         contributors: 320,
-        lastCommit: 0.5, // 半天前
+        openIssues: 580,
+        lastCommit: 0.5,
         releases: 156,
         prs: 8900
       },
@@ -470,11 +464,16 @@ export const gitEcosystemRanking: RankingCategory = {
       description: '知识库问答系统',
       url: 'https://fastgpt.in',
       github: 'https://github.com/labring/FastGPT',
+      company: 'Labring',
+      type: 'platform',
+      platforms: ['web'],
+      features: ['知识库', '问答', 'RAG'],
+      pricing: { model: 'freemium', freeTier: true },
       factors: {
         stars: 42500,
         forks: 6800,
-        openIssues: 320,
         contributors: 180,
+        openIssues: 320,
         lastCommit: 1,
         releases: 89,
         prs: 4200
@@ -488,15 +487,20 @@ export const gitEcosystemRanking: RankingCategory = {
       id: 'openclaw',
       rank: 3,
       name: 'OpenClaw',
-      logo: '🦾',
+      logo: '🦞',
       description: 'AI Agent 编排框架',
       url: 'https://openclaw.ai',
       github: 'https://github.com/openclaw/openclaw',
+      company: 'OpenClaw Community',
+      type: 'framework',
+      platforms: ['windows', 'mac', 'linux'],
+      features: ['Agent编排', '多模型', '插件系统'],
+      pricing: { model: 'free', freeTier: true },
       factors: {
         stars: 2500,
         forks: 420,
-        openIssues: 85,
         contributors: 89,
+        openIssues: 85,
         lastCommit: 0.2,
         releases: 45,
         prs: 680
@@ -505,74 +509,16 @@ export const gitEcosystemRanking: RankingCategory = {
       change: { rank: 2, score: 5.8 },
       tags: ['框架', '新兴', '增长快'],
       lastUpdated: '2026-03-18'
-    },
-    {
-      id: 'langchain',
-      rank: 4,
-      name: 'LangChain',
-      logo: '🔗',
-      description: '构建 LLM 应用的框架',
-      url: 'https://langchain.com',
-      github: 'https://github.com/langchain-ai/langchain',
-      factors: {
-        stars: 98500,
-        forks: 15800,
-        openIssues: 1200,
-        contributors: 580,
-        lastCommit: 0.3,
-        releases: 256,
-        prs: 12500
-      },
-      score: 95.8,
-      change: { rank: -2, score: 0.2 },
-      tags: ['框架', '标杆', '成熟'],
-      lastUpdated: '2026-03-18'
-    },
-    {
-      id: 'coze-sdk',
-      rank: 5,
-      name: 'Coze SDK',
-      logo: '🔷',
-      description: '扣子官方 SDK',
-      url: 'https://github.com/coze-dev/coze-js',
-      github: 'https://github.com/coze-dev/coze-js',
-      factors: {
-        stars: 6800,
-        forks: 890,
-        openIssues: 45,
-        contributors: 28,
-        lastCommit: 2,
-        releases: 24,
-        prs: 320
-      },
-      score: 72.3,
-      change: { rank: 0, score: 1.5 },
-      tags: ['SDK', '官方', '字节'],
-      lastUpdated: '2026-03-18'
     }
   ]
 };
 
 // 所有榜单
 export const allRankings = [
-  clawPlatformRanking,
+  clawSoftwareRanking,
   skillRanking,
   gitEcosystemRanking
 ];
-
-// 格式化数字
-export function formatNumber(num: number, unit?: string): string {
-  if (num >= 100000000) {
-    return (num / 100000000).toFixed(1) + '亿';
-  }
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + '万';
-  }
-  if (num < 1 && num > 0) {
-    return num.toFixed(1);
-  }
-  return Math.round(num).toLocaleString() + (unit ? ` ${unit}` : '');
-}
 
 // 获取排名变化图标
 export function getRankChangeIcon(change: number): string {
@@ -587,3 +533,5 @@ export function getRankChangeColor(change: number): string {
   if (change < 0) return '#ef4444';
   return '#94a3b8';
 }
+
+export { formatNumber, formatGrowth };

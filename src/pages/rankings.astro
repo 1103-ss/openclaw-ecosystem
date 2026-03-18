@@ -2,13 +2,13 @@
 import Layout from '../layouts/Layout.astro';
 import { allRankings, formatNumber, getRankChangeIcon, getRankChangeColor } from '../data/rankings';
 
-const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
+const currentRanking = allRankings[0];
 ---
 
 <Layout title="榜单">
   <div class="page-header">
-    <h1>🏆 综合榜单</h1>
-    <p class="subtitle">多维度评估，发现最优秀的 Claw 平台、Skills 和开源项目</p>
+    <h1>🏆 Claw软件榜单</h1>
+    <p class="subtitle">多维度评估市面上主流Claw软件的用户规模、活跃度和市场影响力</p>
   </div>
 
   <!-- 榜单切换标签 -->
@@ -41,10 +41,6 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
             <span class="factor-weight">{factor.weight}%</span>
           </div>
           <p class="factor-desc">{factor.description}</p>
-          <div class="factor-meta">
-            <span class="factor-unit">单位: {factor.unit || '无'}</span>
-            <span class="factor-direction">{factor.higherIsBetter ? '↑ 越高越好' : '↓ 越低越好'}</span>
-          </div>
           <div class="factor-bar">
             <div class="factor-progress" style={`width: ${factor.weight}%`}></div>
           </div>
@@ -59,24 +55,25 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
       <h3>📈 排行榜</h3>
       <div class="table-actions">
         <button class="action-btn active">综合得分</button>
-        <button class="action-btn">按热度</button>
-        <button class="action-btn">按增长</button>
+        <button class="action-btn">按DAU</button>
+        <button class="action-btn">按访问量</button>
       </div>
     </div>
     
     <div class="ranking-table">
       <div class="table-header">
         <span class="col-rank">排名</span>
-        <span class="col-platform">平台/项目</span>
+        <span class="col-software">软件</span>
         <span class="col-score">综合得分</span>
-        {currentRanking.factors.slice(0, 3).map(factor => (
-          <span class="col-factor">{factor.name}</span>
-        ))}
+        <span class="col-dau">DAU</span>
+        <span class="col-mau">MAU</span>
+        <span class="col-traffic">日访问量</span>
+        <span class="col-token">Token/日</span>
         <span class="col-change">趋势</span>
       </div>
       
       {currentRanking.items.map((item) => (
-        <div class="table-row">
+        <div class="table-row" data-software={item.id}>
           <span class="col-rank">
             {item.rank <= 3 ? (
               <span class={`rank-badge rank-${item.rank}`}>{item.rank}</span>
@@ -85,14 +82,14 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
             )}
           </span>
           
-          <span class="col-platform">
-            <a href={item.url} target="_blank" class="platform-link">
-              <span class="platform-logo">{item.logo}</span>
-              <span class="platform-info">
-                <span class="platform-name">{item.name}</span>
-                <span class="platform-desc">{item.description}</span>
-                <div class="platform-tags">
-                  {item.tags.map(tag => <span class="tag">{tag}</span>)}
+          <span class="col-software">
+            <a href={item.url} target="_blank" class="software-link">
+              <span class="software-logo">{item.logo}</span>
+              <span class="software-info">
+                <span class="software-name">{item.name}</span>
+                <span class="software-company">{item.company}</span>
+                <div class="software-tags">
+                  {item.tags.slice(0, 2).map(tag => <span class="tag">{tag}</span>)}
                 </div>
               </span>
             </a>
@@ -105,11 +102,10 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
             </div>
           </span>
           
-          {currentRanking.factors.slice(0, 3).map(factor => (
-            <span class="col-factor">
-              {formatNumber(item.factors[factor.id], factor.unit)}
-            </span>
-          ))}
+          <span class="col-dau">{formatNumber(item.factors.dau)}</span>
+          <span class="col-mau">{formatNumber(item.factors.mau)}</span>
+          <span class="col-traffic">{formatNumber(item.factors.websiteTraffic)}</span>
+          <span class="col-token">{formatNumber(item.factors.tokenConsumption / 30)}</span>
           
           <span class="col-change">
             {item.change && (
@@ -117,12 +113,86 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
                 <span class="change-rank" style={`color: ${getRankChangeColor(item.change.rank)}`}>
                   {getRankChangeIcon(item.change.rank)} {Math.abs(item.change.rank)}
                 </span>
-                <span class="change-score" style={`color: ${item.change.score >= 0 ? '#22c55e' : '#ef4444'}`}>
-                  {item.change.score >= 0 ? '+' : ''}{item.change.score.toFixed(1)}%
-                </span>
               </div>
             )}
           </span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- 软件详情展示 -->
+  <section class="details-section">
+    <h3>🔍 软件详情</h3>
+    <div class="details-grid">
+      {currentRanking.items.map((item) => (
+        <div class="detail-card" id={`software-${item.id}`}>
+          <div class="detail-header">
+            <span class="detail-rank">#{item.rank}</span>
+            <span class="detail-logo">{item.logo}</span>
+            <div class="detail-title">
+              <h4>{item.name}</h4>
+              <span class="detail-company">{item.company}</span>
+            </div>
+            <span class="detail-score">{item.score.toFixed(1)}分</span>
+          </div>
+          
+          <p class="detail-desc">{item.description}</p>
+          
+          <div class="detail-features">
+            <h5>✨ 核心功能</h5>
+            <ul>
+              {item.fullData?.features.slice(0, 5).map((feature: string) => (
+                <li>{feature}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div class="detail-stats">
+            <div class="stat-item">
+              <span class="stat-label">DAU</span>
+              <span class="stat-value">{formatNumber(item.fullData?.stats.dau || 0)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">MAU</span>
+              <span class="stat-value">{formatNumber(item.fullData?.stats.mau || 0)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">总用户</span>
+              <span class="stat-value">{formatNumber(item.fullData?.stats.totalUsers || 0)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">日访问量</span>
+              <span class="stat-value">{formatNumber(item.fullData?.stats.websiteTraffic.daily || 0)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">月访问量</span>
+              <span class="stat-value">{formatNumber(item.fullData?.stats.websiteTraffic.monthly || 0)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Token/日</span>
+              <span class="stat-value">{formatNumber(item.fullData?.stats.tokenConsumption.daily || 0)}</span>
+            </div>
+          </div>
+          
+          <div class="detail-rating">
+            <span class="rating-label">用户评分：</span>
+            <span class="rating-stars">{'⭐'.repeat(Math.floor(item.fullData?.rating.score || 0))}</span>
+            <span class="rating-value">{item.fullData?.rating.score}/5 ({formatNumber(item.fullData?.rating.reviewCount || 0)}条评价)</span>
+          </div>
+          
+          <div class="detail-pricing">
+            <span class="pricing-label">定价：</span>
+            <span class="pricing-value">{item.fullData?.pricing.startingPrice}</span>
+            {item.fullData?.pricing.freeTier && <span class="free-badge">有免费版</span>}
+          </div>
+          
+          <div class="detail-links">
+            <a href={item.url} target="_blank" class="link-btn">访问官网 →</a>
+            {item.fullData?.downloadUrl && (
+              <a href={item.fullData.downloadUrl} target="_blank" class="link-btn secondary">下载 →</a>
+            )}
+          </div>
         </div>
       ))}
     </div>
@@ -138,19 +208,15 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
       </div>
       <div class="info-card">
         <h4>🔄 更新机制</h4>
-        <p>数据每日/每周自动更新，排名变化反映最新趋势。历史数据保留用于趋势分析。</p>
+        <p>数据每日自动更新，排名变化反映最新趋势。历史数据保留用于趋势分析。</p>
       </div>
       <div class="info-card">
         <h4>📋 收录标准</h4>
         <ul>
-          <li>Claw 平台：国产 AI Agent 平台</li>
-          <li>Skills：ClawHub 上架技能</li>
-          <li>Git 生态：GitHub 开源项目</li>
+          <li>基于OpenClaw的AI Agent软件</li>
+          <li>面向终端用户的产品</li>
+          <li>有实际用户和数据的产品</li>
         </ul>
-      </div>
-      <div class="info-card">
-        <h4>📮 投稿/纠错</h4>
-        <p>发现数据错误或有项目想上榜？请在 GitHub 提交 Issue 或联系管理员。</p>
       </div>
     </div>
   </section>
@@ -282,14 +348,6 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
     margin-bottom: 0.75rem;
   }
 
-  .factor-meta {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
-  }
-
   .factor-bar {
     height: 6px;
     background: var(--bg);
@@ -345,35 +403,33 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
+    margin-bottom: 2rem;
   }
 
   .table-header {
     display: grid;
-    grid-template-columns: 80px 2fr 100px repeat(3, 120px) 100px;
-    gap: 1rem;
+    grid-template-columns: 60px 2fr 100px repeat(4, 100px) 80px;
+    gap: 0.75rem;
     padding: 1rem 1.5rem;
     background: var(--bg);
     font-weight: 600;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .table-row {
     display: grid;
-    grid-template-columns: 80px 2fr 100px repeat(3, 120px) 100px;
-    gap: 1rem;
+    grid-template-columns: 60px 2fr 100px repeat(4, 100px) 80px;
+    gap: 0.75rem;
     padding: 1.25rem 1.5rem;
     border-top: 1px solid var(--border);
     align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
   }
 
   .table-row:hover {
     background: rgba(99, 102, 241, 0.05);
-  }
-
-  .col-rank {
-    font-weight: bold;
-    font-size: 1.1rem;
   }
 
   .rank-badge {
@@ -401,7 +457,7 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
     color: #fff;
   }
 
-  .platform-link {
+  .software-link {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -409,30 +465,30 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
     color: inherit;
   }
 
-  .platform-logo {
-    font-size: 2rem;
+  .software-logo {
+    font-size: 1.5rem;
   }
 
-  .platform-info {
+  .software-info {
     display: flex;
     flex-direction: column;
   }
 
-  .platform-name {
+  .software-name {
     font-weight: 600;
     font-size: 1.05rem;
   }
 
-  .platform-desc {
+  .software-company {
     font-size: 0.8rem;
     color: var(--text-muted);
     margin-top: 0.25rem;
   }
 
-  .platform-tags {
+  .software-tags {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
   }
 
   .tag {
@@ -468,23 +524,226 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
     border-radius: 2px;
   }
 
-  .col-factor {
+  .col-dau, .col-mau, .col-traffic, .col-token {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .col-traffic {
+    color: var(--accent);
+    font-weight: 500;
   }
 
   .change-info {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
   }
 
   .change-rank {
     font-weight: 600;
   }
 
-  .change-score {
-    font-size: 0.8rem;
+  .details-section {
+    margin-bottom: 3rem;
+  }
+
+  .details-section h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .detail-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    scroll-margin-top: 100px;
+  }
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-rank {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+
+  .detail-logo {
+    font-size: 2rem;
+  }
+
+  .detail-title {
+    flex: 1;
+  }
+
+  .detail-title h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-company {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .detail-score {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .detail-desc {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .detail-features {
+    margin-bottom: 1rem;
+  }
+
+  .detail-features h5 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+  }
+
+  .detail-features ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .detail-features li {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .detail-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .detail-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: 8px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-value {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .detail-rating {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .rating-label {
+    color: var(--text-muted);
+  }
+
+  .rating-stars {
+    color: #fbbf24;
+  }
+
+  .rating-value {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+  }
+
+  .detail-pricing {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .pricing-label {
+    color: var(--text-muted);
+  }
+
+  .pricing-value {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .free-badge {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+  }
+
+  .detail-links {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .link-btn {
+    flex: 1;
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+
+  .link-btn:hover {
+    background: var(--primary-dark);
+  }
+
+  .link-btn.secondary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .link-btn.secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .info-section {
@@ -539,3 +798,20 @@ const currentRanking = allRankings[0]; // 默认显示 Claw 平台榜
     color: var(--accent);
   }
 </style>
+
+<script>
+  // 点击表格行滚动到对应详情
+  document.querySelectorAll('.table-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const softwareId = row.getAttribute('data-software');
+      const detailCard = document.getElementById(`software-${softwareId}`);
+      if (detailCard) {
+        detailCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        detailCard.style.borderColor = 'var(--accent)';
+        setTimeout(() => {
+          detailCard.style.borderColor = 'var(--border)';
+        }, 2000);
+      }
+    });
+  });
+</script>
